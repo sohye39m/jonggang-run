@@ -22,7 +22,21 @@
 }
 [hidden]{display:none!important}
 html,body{height:100%}
-body{margin:0;background:var(--night);color:var(--ice);font-family:var(--body);overflow:hidden;
+body{margin:0;color:var(--ice);
+  /* 프로토타입의 은하수 배경(world.js 의 buildSky)을 CSS 로 옮긴 것.
+     캔버스가 그려지기 전과 world.js 가 없을 때 뒤에 보이고, 캔버스가 그려지면 그 아래로 가려진다.
+     위에서부터: 별 → 은하수 띠 → 성운(보라·분홍) → 밤하늘 그라데이션 */
+  background:
+    radial-gradient(1px 1px at 13px 27px,#fff,transparent) 0 0/131px 97px,
+    radial-gradient(1px 1px at 71px 53px,rgba(255,235,215,.8),transparent) 0 0/173px 149px,
+    radial-gradient(1.5px 1.5px at 41px 91px,rgba(200,225,255,.9),transparent) 0 0/229px 211px,
+    radial-gradient(.8px .8px at 5px 5px,rgba(235,240,255,.6),transparent) 0 0/53px 61px,
+    linear-gradient(347deg,transparent 36%,rgba(70,198,255,.07) 45%,rgba(255,236,210,.11) 51%,rgba(130,140,255,.08) 57%,transparent 66%),
+    radial-gradient(ellipse 42% 32% at 14% 12%,rgba(110,90,255,.24),transparent 72%),
+    radial-gradient(ellipse 36% 28% at 88% 10%,rgba(255,110,170,.13),transparent 72%),
+    linear-gradient(180deg,#02030a 0,#050a1e 30%,#0b1636 42%,#060c22 60%,#020309 100%);
+  background-color:var(--night);
+  font-family:var(--body);overflow:hidden;
   -webkit-user-select:none;user-select:none;
   word-break:keep-all;overflow-wrap:break-word} /* 줄바꿈은 단어 단위로 */
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
@@ -30,24 +44,22 @@ body{margin:0;background:var(--night);color:var(--ice);font-family:var(--body);o
 /* 게임 그림이 들어갈 자리 (그림은 ui.js 가 JR.sprites 에서 채운다) */
 .spr{display:inline-block;height:1.35em;width:auto;vertical-align:-.3em}
 
-/* ---------- HUD: 왼쪽 위에 모아서 왼쪽 정렬 ---------- */
-.hud{position:fixed;top:0;left:0;display:flex;flex-direction:column;align-items:flex-start;gap:16px;
-  padding:var(--gt) 0 0 var(--gl);pointer-events:none;transition:opacity .4s}
+/* ---------- HUD: 왼쪽 위 = 남은 시간, 오른쪽 위 = 학점·따봉 수 (SPEC 3절) ---------- */
+.hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  padding:var(--gt) var(--gr) 0 var(--gl);pointer-events:none;transition:opacity .4s}
 .hud[data-off="1"]{opacity:0}
 .stat{display:flex;flex-direction:column;gap:6px;min-width:0}
-.labrow{display:flex;align-items:center;gap:8px}
+.stat.right{align-items:flex-end;text-align:right}
 .lab{font-size:11px;letter-spacing:.14em;color:var(--mist);font-weight:800;line-height:1.2}
-/* 학점 글자: '교수님 따봉' 글자와 같은 크기 */
-.grade{font-family:var(--body);font-size:11px;font-weight:800;letter-spacing:.14em;line-height:1.2;
-  color:#05070f;background:var(--ember);padding:2px 6px;border-radius:2px}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(26px,4.4vw,36px);font-weight:600;line-height:1;text-shadow:0 0 18px rgba(70,198,255,.4)}
 .bar{width:clamp(120px,24vw,200px);height:5px;border-radius:3px;background:rgba(233,242,255,.12);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--glacier),var(--aurora));box-shadow:0 0 10px var(--aurora)}
-.row{display:flex;align-items:center;gap:10px}
+.row{display:flex;align-items:center;gap:8px}
 .row .spr{height:30px;filter:drop-shadow(0 0 8px rgba(255,207,110,.5))}
+.grade{font-family:var(--display);font-size:12px;color:#05070f;background:var(--ember);padding:3px 7px;border-radius:3px}
 
-/* ---------- 일시정지·소리 버튼: 오른쪽 위 ---------- */
-.ctrls{position:fixed;top:var(--gt);right:var(--gr);display:flex;gap:8px;z-index:2}
+/* ---------- 일시정지·소리 버튼: 왼쪽 아래 (SPEC 3절) ---------- */
+.ctrls{position:fixed;bottom:var(--gb);left:var(--gl);display:flex;gap:8px;z-index:2}
 .mute{font-family:var(--body);font-size:12px;color:var(--mist);background:rgba(3,5,12,.5);border:1px solid var(--line);border-radius:3px;padding:7px 10px;cursor:pointer}
 .mute:hover{color:var(--ice)}
 .btn:focus-visible,.mute:focus-visible{outline:2px solid var(--ice);outline-offset:3px}
@@ -55,15 +67,15 @@ body{margin:0;background:var(--night);color:var(--ice);font-family:var(--body);o
 
 /* ---------- 화면(오버레이) ---------- */
 .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-  padding:calc(var(--gt) + 44px) var(--gr) var(--gb) var(--gl);pointer-events:none;overflow:auto}
-.card{pointer-events:auto;width:min(480px,100%);display:flex;flex-direction:column;gap:22px;
+  padding:calc(var(--gt) + 4px) var(--gr) calc(var(--gb) + 36px) var(--gl);pointer-events:none;overflow:auto}
+.card{pointer-events:auto;width:min(480px,100%);box-sizing:border-box;display:flex;flex-direction:column;gap:16px;
+  padding:22px 24px 20px;background:rgba(6,10,26,.86);border:1px solid var(--line);border-radius:4px;
   animation:rise .5s cubic-bezier(.2,.8,.2,1)}
 @keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.card{animation:none}}
 
-/* 시작 화면(PC): 카드 없이 왼쪽 정렬, 뒤 주행 화면이 비쳐 보이도록 왼쪽만 살짝 어둡게 */
-#titleView{justify-content:flex-start;
-  background:linear-gradient(90deg,rgba(3,5,12,.9) 0,rgba(3,5,12,.72) 42%,rgba(3,5,12,0) 78%)}
+/* 시작 화면(PC): 카드를 왼쪽에 두고 뒤의 데모 주행이 오른쪽에 크게 보이게 한다 */
+#titleView{justify-content:flex-start}
 #titleView .card{text-align:left}
 /* PC 시작 카드만: 오른쪽으로 30px, 전체 1.4배 (휴대폰은 아래 미디어쿼리가 그대로 유지) */
 @media (min-width:521px){
@@ -121,14 +133,15 @@ h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
   /* 소개글: 지정한 자리에서 줄을 바꾸고, 문장 사이에 줄 높이의 0.5배 간격 */
   .lede .m{display:inline}
   .lede .ln+.ln{margin-top:.875em}
-  .overlay{padding:0;align-items:stretch;background:rgba(3,5,12,.9)}
-  .card{width:100%;min-height:100%;box-sizing:border-box;gap:20px;
-    padding:calc(var(--gt) + 54px) var(--gr) calc(var(--gb) + 6px) var(--gl)}
+  .overlay{padding:0;align-items:stretch;background:rgba(3,5,12,.5)}
+  /* 화면 전체가 카드이므로 카드 자체의 배경·테두리는 없앤다. 아래는 왼쪽 아래 버튼 자리를 비워 둔다 */
+  .card{width:100%;min-height:100%;box-sizing:border-box;gap:20px;background:none;border:0;border-radius:0;
+    padding:calc(var(--gt) + 54px) var(--gr) calc(var(--gb) + 48px) var(--gl)}
   /* 시작 화면: 제목이 위쪽에서 시작하고, 버튼은 맨 아래 */
-  #titleView{background:rgba(3,5,12,.92)}
+  #titleView{background:rgba(3,5,12,.5)}
   #titleView .card{justify-content:flex-start}
   #titleView .btn{margin-top:auto}
   /* 결과·일시정지 화면: 화면 한가운데에 모아서 가운데 정렬 */
   #overView .card,#pauseView .card{justify-content:center}
-  #pauseView{background:rgba(3,5,12,.78)}
+  #pauseView{background:rgba(3,5,12,.7)}
 }
