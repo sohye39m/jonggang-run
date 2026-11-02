@@ -99,7 +99,7 @@
 - 로켓이나 우주복 차림의 와우, 와우 애니메이션
 - 서버, 온라인 랭킹, 로그인
 - 스테이지 추가, 아이템, 캐릭터 선택, 난이도 선택
-- 배경 음악, 음원 파일 (효과음은 프로토타입처럼 코드로 생성)
+- 배경 음악 1곡(`assets/bgm.mp3`) 외의 음악과 음원 파일 (효과음은 프로토타입처럼 코드로 생성)
 - 프레임워크, 빌드 도구, 모듈 시스템, TypeScript
 - 게임패드, 다국어
 
@@ -119,7 +119,8 @@
 | | | `css/style.css` | `<style>` 전체 |
 | | | `js/ui.js` | `hud()`, 카드 전환, 버튼 연결 |
 | | | `js/input.js` | 키보드, 포인터, `visibilitychange` |
-| | | `js/audio.js` | `audio()`, `tone()`, 효과음 |
+| | | `js/audio.js` | `audio()`, `tone()`, 효과음, 배경 음악 재생 |
+| | | `assets/bgm.mp3` | 프로토타입에 없음. 배경 음악 파일 |
 | sohye39m (`lane-L`) | 문서·배포 | `SPEC.md`, `README.md`, `reference/` | — |
 
 ## 7. 서로 부를 때 쓰는 이름
@@ -211,11 +212,14 @@
 | 이름 | 부르는 곳 | 하는 일 |
 |---|---|---|
 | `unlock()` | game | 첫 입력 때 소리 시작 |
-| `toggleMute()` | ui | 음소거 전환 후 현재 상태(`true`=꺼짐) 반환 |
+| `toggleMute()` | ui | 음소거 전환 후 현재 상태(`true`=꺼짐) 반환. 배경 음악도 함께 전환 |
 | `playStart()`, `playFinish()` | game | 시작음, 종강 팡파르 |
 | `playLane(d)` | game | 레인 이동음 |
 | `playCoin(thumbs)` | game | 따봉음 (`thumbs`에 따라 음 높이 변화) |
 | `playHit()` | game | 충돌음 |
+| `playBgm()` | ui | 새 판 시작 때 배경 음악을 처음부터 반복 재생 |
+| `pauseBgm()`, `resumeBgm()` | ui | 배경 음악 일시정지, 멈춘 자리에서 재개 |
+| `stopBgm(sec)` | ui | `sec`초(기본 1.5) 동안 배경 음악을 줄인 뒤 멈추고 종료 효과음 재생 |
 
 **이름이나 인자를 바꾸려면** Leader에게 먼저 알리고, 이 문서를 고친 뒤 코드를 바꾼다.
 
