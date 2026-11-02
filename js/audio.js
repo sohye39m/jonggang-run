@@ -32,12 +32,87 @@
     o.stop(t + dur + 0.02);
   }
 
+  // 음악이 멈출 때 나는 "뿅" 소리: 음이 위로 톡 튀어 오르고, 끝에 반짝임이 얹힌다.
+  // 다른 효과음보다 크게 낸다 (사라지는 음악 뒤에 묻히지 않도록).
+  function playOutro() {
+    tone(420, 0.2, 'sine', 0.3, 3.2); // 뿅: 420Hz 에서 위로 쭉 올라감
+    tone(840, 0.2, 'triangle', 0.1, 3.2); // 위 소리에 겹쳐 더 상큼하게
+    tone(2093, 0.22, 'sine', 0.12, 1, 0.13); // 끝의 반짝임
+  }
+
+  // ---------- 배경음악 ----------
+  // 음원: assets/bgm.mp3 (the_mountain-retro-game). <audio> 로 반복 재생한다.
+  // file:// 로 열어도 되도록 fetch 대신 HTMLAudioElement 를 쓴다.
+  const BGM_SRC = 'assets/bgm.mp3';
+  const BGM_VOLUME = 0.2; // 효과음보다 작게. 너무 크면 이 값만 낮춘다
+  let bgm = null;
+  let fadeTimer = 0;
+
+  function getBgm() {
+    if (!bgm) {
+      bgm = new Audio(BGM_SRC);
+      bgm.loop = true;
+      bgm.preload = 'auto';
+      bgm.volume = BGM_VOLUME;
+      bgm.muted = muted;
+    }
+    return bgm;
+  }
+
+  function playSafe(a) {
+    const p = a.play();
+    if (p && p.catch) p.catch(() => {}); // 첫 입력 전에는 브라우저가 막을 수 있다
+  }
+
+  function cancelFade() {
+    clearInterval(fadeTimer);
+    fadeTimer = 0;
+  }
+
   JR.audio = {
     unlock,
-    // 음소거를 전환하고 현재 상태를 돌려준다 (true = 꺼짐)
+    // 음소거를 전환하고 현재 상태를 돌려준다 (true = 꺼짐). 배경음악도 함께 꺼진다.
     toggleMute() {
       muted = !muted;
+      if (bgm) bgm.muted = muted;
       return muted;
+    },
+    // 새 판 시작: 배경음악을 처음부터 재생
+    playBgm() {
+      const a = getBgm();
+      cancelFade();
+      a.volume = BGM_VOLUME;
+      a.currentTime = 0;
+      playSafe(a);
+    },
+    // 일시정지 / 재개: 멈춘 자리에서 이어서
+    pauseBgm() {
+      if (bgm) bgm.pause();
+    },
+    resumeBgm() {
+      if (!bgm) return;
+      cancelFade();
+      bgm.volume = BGM_VOLUME;
+      playSafe(bgm);
+    },
+    // 종료: 1.5초 동안 서서히 줄이고, 완전히 멈추는 순간 귀여운 소리를 낸다
+    stopBgm(sec = 1.5) {
+      if (!bgm || bgm.paused) return;
+      cancelFade();
+      const a = bgm;
+      const steps = 30;
+      let i = 0;
+      fadeTimer = setInterval(() => {
+        i++;
+        a.volume = Math.max(0, BGM_VOLUME * (1 - i / steps));
+        if (i >= steps) {
+          cancelFade();
+          a.pause();
+          a.currentTime = 0;
+          a.volume = BGM_VOLUME;
+          playOutro();
+        }
+      }, (sec * 1000) / steps);
     },
     playStart() {
       tone(392, 0.16, 'sine', 0.05);
