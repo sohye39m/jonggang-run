@@ -32,24 +32,25 @@
     o.stop(t + dur + 0.02);
   }
 
-  // 배경음악이 완전히 멈춘 뒤 나오는 소리: assets/finish.mp3 (freesound_community, piglevelwin2).
-  // 음소거 중에는 재생하지 않는다.
-  const OUTRO_SRC = 'assets/finish.mp3';
-  const OUTRO_VOLUME = 0.7;
-  let outroSfx = null;
-  function getOutro() {
-    if (!outroSfx) {
-      outroSfx = new Audio(OUTRO_SRC);
-      outroSfx.preload = 'auto';
-      outroSfx.volume = OUTRO_VOLUME;
+  // 종강 팡파르: assets/finish.mp3 (freesound_community, piglevelwin2).
+  // 런이 종강 표지판 교수님 앞에 멈춘 직후 playFinish() 가 재생한다. 음소거 중에는 재생하지 않는다.
+  const FANFARE_SRC = 'assets/finish.mp3';
+  const FANFARE_VOLUME = 0.7;
+  let fanfare = null;
+  function getFanfare() {
+    if (!fanfare) {
+      fanfare = new Audio(FANFARE_SRC);
+      fanfare.preload = 'auto';
+      fanfare.volume = FANFARE_VOLUME;
+      fanfare.muted = muted;
     }
-    return outroSfx;
+    return fanfare;
   }
-  function playOutro() {
-    if (muted) return;
-    const a = getOutro();
-    a.currentTime = 0;
-    playSafe(a);
+  // 새 판이 시작될 때 이전 팡파르가 남아 있으면 멈춘다
+  function stopFanfare() {
+    if (!fanfare) return;
+    fanfare.pause();
+    fanfare.currentTime = 0;
   }
 
   // ---------- 배경음악 ----------
@@ -87,11 +88,13 @@
     toggleMute() {
       muted = !muted;
       if (bgm) bgm.muted = muted;
+      if (fanfare) fanfare.muted = muted;
       return muted;
     },
     // 새 판 시작: 배경음악을 처음부터 재생
     playBgm() {
-      getOutro(); // 종료 팡파르를 미리 불러 둔다
+      stopFanfare(); // 재수강: 이전 판의 팡파르가 남아 있으면 멈춘다
+      getFanfare(); // 종강 팡파르를 미리 불러 둔다
       const a = getBgm();
       cancelFade();
       a.volume = BGM_VOLUME;
@@ -108,7 +111,7 @@
       bgm.volume = BGM_VOLUME;
       playSafe(bgm);
     },
-    // 종료: 1.5초 동안 서서히 줄이고, 완전히 멈춘 뒤 팡파르(assets/finish.mp3)를 재생한다
+    // 종료: 1.5초 동안 서서히 줄이고 멈춘다 (팡파르는 playFinish 가 이미 재생함)
     stopBgm(sec = 1.5) {
       if (!bgm || bgm.paused) return;
       cancelFade();
@@ -123,7 +126,6 @@
           a.pause();
           a.currentTime = 0;
           a.volume = BGM_VOLUME;
-          playOutro();
         }
       }, (sec * 1000) / steps);
     },
@@ -132,11 +134,12 @@
       tone(523, 0.16, 'sine', 0.05, 1, 0.12);
       tone(659, 0.22, 'sine', 0.05, 1, 0.24);
     },
+    // 종강 팡파르: 런이 멈춘 직후 game.js 가 부른다
     playFinish() {
-      tone(523, 0.2, 'sine', 0.06);
-      tone(659, 0.2, 'sine', 0.06, 1, 0.12);
-      tone(784, 0.2, 'sine', 0.06, 1, 0.24);
-      tone(1047, 0.5, 'sine', 0.06, 1, 0.36);
+      if (muted) return;
+      const a = getFanfare();
+      a.currentTime = 0;
+      playSafe(a);
     },
     // d: -1 왼쪽, 1 오른쪽
     playLane(d) {
