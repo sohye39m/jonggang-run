@@ -1,14 +1,25 @@
-// 담당: uoona-svg — 규칙에 쓰는 값 (SPEC.md 2절, 7절). 아직 빈 자리.
+// 담당: uoona-svg — 규칙에 쓰는 값 (SPEC.md 2절, 7절).
 (() => {
   const JR = (window.JR = window.JR || {});
   JR.config = {
-    TOTAL: null,
-    LANES: null,
-    ZP: null,
-    ZNEAR: null,
-    ZFAR: null,
-    GRADES: null,
-    BEST_KEY: null,
-    reduceMotion: null,
+    TOTAL: 40,
+    LANES: [-0.62, 0, 0.62],
+    ZP: 2.2,
+    ZNEAR: 1.25,
+    ZFAR: 72,
+    // [최소 따봉, 학점, 코멘트], 높은 순
+    GRADES: [
+      [100, 'A+', '교수님이 추천서 써주신대요. 전설의 수강생.'],
+      [90, 'A0', '교수님 기억 속 그 학생. 거의 완벽했어요.'],
+      [80, 'B+', '성실함 인정. 조금만 더 따봉을 모았다면!'],
+      [70, 'B0', '무난하게 잘 버텼어요. 다음 학기도 화이팅.'],
+      [60, 'C+', '출석은 했는데… 존재감이 살짝 아쉬워요.'],
+      [50, 'C0', '교수님이 이름을 겨우 기억하세요.'],
+      [40, 'D+', '잔소리를 너무 많이 들었어요.'],
+      [30, 'D0', '종강은 했지만 마음이 무거워요.'],
+      [0, 'F', '다음 학기에 다시 만나요. 재수강 확정.'],
+    ],
+    BEST_KEY: 'jonggang-run-best',
+    reduceMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
   };
 })();
