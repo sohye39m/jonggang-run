@@ -109,18 +109,18 @@
 
 | 담당 | 영역 | 파일 | 프로토타입에서 옮길 부분 |
 |---|---|---|---|
-| uoona-svg | 규칙 | `js/config.js` | `TOTAL`, `LANES`, `ZP`/`ZNEAR`/`ZFAR`, `GRADES` |
+| uoona-svg (`lane-A`) | 규칙 | `js/config.js` | `TOTAL`, `LANES`, `ZP`/`ZNEAR`/`ZFAR`, `GRADES` |
 | | | `js/state.js` | `mode`, `best`, `S`, `reset()` |
 | | | `js/game.js` | `spawnRow`, `update`의 규칙, `start`, `pause`, `finishRun` |
 | | | `js/main.js` | `frame`, `boot`, 폰트 대기 |
-| inayun059-afk | 그림 | `js/sprites.js` | `SPRITES` 구역 전체, **와우 새로 그리기** |
+| inayun059-afk (`lane-B`) | 그림 | `js/sprites.js` | `SPRITES` 구역 전체, **와우 새로 그리기** |
 | | | `js/world.js` | 배경, 도로, 물체와 플레이어 그리기, `resize`, `P`, 효과, 먼지, 유성, 카메라 |
-| MinjooSong0708 | 화면 | `index.html` | HTML 구조, `<script>` 태그 |
+| MinjooSong0708 (`lane-C`) | 화면 | `index.html` | HTML 구조, `<script>` 태그 |
 | | | `css/style.css` | `<style>` 전체 |
 | | | `js/ui.js` | `hud()`, 카드 전환, 버튼 연결 |
 | | | `js/input.js` | 키보드, 포인터, `visibilitychange` |
 | | | `js/audio.js` | `audio()`, `tone()`, 효과음 |
-| sohye39m | 문서·배포 | `SPEC.md`, `README.md`, `reference/` | — |
+| sohye39m (`lane-L`) | 문서·배포 | `SPEC.md`, `README.md`, `reference/` | — |
 
 ## 7. 서로 부를 때 쓰는 이름
 
@@ -221,28 +221,34 @@
 
 ## 8. 이슈 목록 (먼저 할 것부터)
 
-**같이 시작하는 방법:** #2~#4에서 각자 7절의 이름을 **빈 함수로 먼저 올린다.** 그러면 다른 사람 파일이 덜 됐어도 오류 없이 실행된다.
+GitHub 이슈: https://github.com/sohye39m/jonggang-run/issues
+뼈대(빈 파일과 7절의 이름)는 이미 `main`에 있다. 같은 레인 안에서는 번호 순서대로 진행한다.
 
-| # | 담당 | 작업 | 끝난 기준 | 시간대(분) |
-|---|---|---|---|---|
-| 1 | sohye39m | 공개 저장소 `jonggang-run` 생성, Builder 3명 초대, `SPEC.md`와 참고 이미지 2장 올리기 (`~/Downloads/이미지 2026. 11. 2. 오후 7.48.jpg` → `reference/wow-plush.jpg`, `~/Downloads/IMG_9571.jpg` → `reference/wow-space.jpg`) | 3명이 clone하고 PR을 올릴 수 있다 | 0–10 |
-| 2 | MinjooSong0708 | `index.html`, `css/style.css` 옮기기, `ui`/`input`/`audio` 빈 함수 | 시작 카드가 프로토타입과 같게 보인다 | 10–25 |
-| 3 | uoona-svg | `config`, `state` 옮기기, `game`/`main` 빈 함수 | 콘솔에서 `JR.state.reset()`이 동작한다 | 10–25 |
-| 4 | inayun059-afk | `sprites.js` 옮기기(콩알이 임시), `world` 빈 함수 | `JR.sprites.build()` 후 그림이 생성된다 | 10–25 |
-| 5 | uoona-svg | `game.js`, `main.js` 옮기기: 속도, 등장, 충돌, 결승, 학점 | 콘솔에서 40초 진행 후 `over`와 학점 확인 | 25–55 |
-| 6 | inayun059-afk | `world.js` 옮기기: 배경, 도로, 물체, 효과 | 프로토타입과 같은 주행 화면이 보인다 | 25–55 |
-| 7 | MinjooSong0708 | `ui.js`: HUD, 3개 카드, 버튼 / `audio.js` | 일시정지, 음소거, 결과 카드가 동작한다 | 25–50 |
-| 8 | MinjooSong0708 | `input.js`: 키보드와 터치, 자동 일시정지 | 2절의 조작표가 모두 동작한다 | 50–65 |
-| 9 | inayun059-afk | 와우 뒷모습 그리기, 콩알이 코드와 문구 제거 요청 | 게임 속 플레이어가 와우이고, 레인 이동 중에도 깨지지 않는다 | 55–90 |
-| 10 | uoona-svg | 3명 이상 실제 플레이, 필요하면 등장 수치 조정 | 잘하는 사람이 집중하면 A+가 가능하고, 처음 하는 사람도 F만 나오지 않는다 | 90–105 |
-| 11 | sohye39m | 9절의 통합 점검, 발견한 문제를 담당자에게 배정 | 점검표 전체 통과 | 90–115 |
-| 12 | sohye39m | GitHub Pages 배포, `README.md`에 주소 기록, 휴대폰으로 확인 | 휴대폰에서 주소를 열어 터치로 끝까지 플레이된다 | 115–125 |
+| # | 레인 | 담당 | 작업 | 시간대(분) | 먼저 끝나야 할 이슈 |
+|---|---|---|---|---|---|
+| 1 | `lane-L` | sohye39m | 참고 이미지 추가와 SPEC 갱신 | 0–10 | 없음 |
+| 2 | `lane-A` | uoona-svg | 규칙 값과 상태 옮기기 | 10–25 | 없음 |
+| 3 | `lane-B` | inayun059-afk | 프로토타입 그림 옮기기 | 10–25 | 없음 |
+| 4 | `lane-C` | MinjooSong0708 | 화면 구조와 스타일 옮기기 | 10–35 | 없음 |
+| 5 | `lane-C` | MinjooSong0708 | 효과음 옮기기 | 35–50 | 없음 |
+| 6 | `lane-A` | uoona-svg | 주행과 게임 루프 | 25–45 | #2 |
+| 7 | `lane-A` | uoona-svg | 물체 등장과 충돌 | 45–65 | #6 |
+| 8 | `lane-A` | uoona-svg | 결승, 학점, 타이틀 데모 | 65–85 | #7 |
+| 9 | `lane-B` | inayun059-afk | 배경과 도로 | 35–50 | #2, #4 |
+| 10 | `lane-A` | uoona-svg | 플레이 테스트와 밸런스 조정 | 85–100 | #8, #11, #13, #14 |
+| 11 | `lane-B` | inayun059-afk | 물체, 플레이어, 효과 | 50–75 | #3, #6, #9 |
+| 12 | `lane-B` | inayun059-afk | 와우 뒷모습 그리기 | 75–105 | #1, #3 |
+| 13 | `lane-C` | MinjooSong0708 | 화면 전환과 HUD | 50–70 | #2, #4 |
+| 14 | `lane-C` | MinjooSong0708 | 키보드와 터치 입력 | 70–80 | #4, #6 |
+| 15 | `lane-B` | inayun059-afk | 와우 적용과 콩알이 제거 | 105–115 | #12 |
+| 16 | `lane-L` | sohye39m | 통합 점검 | 100–120 | #5, #10, #14 (콩알이 항목은 #15 후) |
+| 17 | `lane-L` | sohye39m | GitHub Pages 배포 | 120–130 | #16 |
 
-125–140분은 예비 시간이다.
+할 일과 완료 조건은 각 이슈에 있다. 130–140분은 예비 시간이다.
 
 **시간이 밀릴 때 빼는 순서:** 별자리와 유성 → 타이틀 데모 주행 → 최고 기록 → 모바일 터치.
 **빼지 않는 것:** 이동, 충돌, 따봉, 40초 진행, 학점, 시작/끝 화면, 와우.
-와우가 90분까지 끝나지 않으면 단순한 도형 버전으로 먼저 교체하고 넘어간다. 콩알이로 제출하지 않는다.
+와우가 105분까지 끝나지 않으면 단순한 도형 버전으로 먼저 교체하고 넘어간다. 콩알이로 제출하지 않는다.
 
 ## 9. 통합 점검표
 
@@ -264,7 +270,3 @@
 - `main`에 직접 올리지 않는다. 이슈마다 브랜치를 만들고 PR을 올리면 Leader가 리뷰 후 병합한다.
 - PR은 자기 파일만 고친다. 다른 파일이 필요하면 그 파일의 주인에게 요청한다.
 - PR 설명에 이슈 번호를 적는다 (예: `Closes #5`).
-
-## 11. 시작 전에 확인할 것
-
-- 저장소와 게임 주소가 공개되고 학교 마스코트 이미지가 포함된다. 판매 안내 이미지가 포함된 `reference/wow-plush.jpg`를 공개 저장소에 올려도 되는지 Leader가 확인한다. 어렵다면 참고 이미지는 저장소 대신 팀 내부로만 공유한다.
