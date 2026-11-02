@@ -18,9 +18,9 @@
       <span class="num" id="timer">40.0</span>
       <div class="bar"><i id="prog"></i></div>
     </div>
-    <div class="stat right">
-      <span class="lab">교수님 따봉</span>
-      <div class="row"><span class="grade" id="liveGrade">F</span><span class="num" id="thumbs">0</span><span class="thumb">👍</span></div>
+    <div class="stat">
+      <div class="labrow"><span class="lab">교수님 따봉</span><span class="grade" id="liveGrade">F</span></div>
+      <div class="row"><span class="num" id="thumbs">0</span><canvas class="spr" data-spr="coin" width="60" height="56" aria-hidden="true"></canvas></div>
     </div>
   </div>
 
@@ -28,14 +28,18 @@
     <div class="card">
       <span class="eyebrow">SEMESTER IN SPACE · 40초 학기</span>
       <h1>종강 <span>RUN</span></h1>
-      <p class="lede">노트북을 탄 <b>와우</b>가 은하수를 가로질러 종강으로 달려요. <b>화난 교수님</b>은 피하고 <b>교수님 따봉</b>을 모아 학점을 받으세요. 처음엔 느긋하지만 종강이 가까울수록 빨라져요.</p>
-      <div class="keys" style="grid-template-columns:repeat(2,1fr)">
+      <p class="lede">
+        <span class="ln">노트북을 탄 <b>와우</b>가<br class="m"> 은하수를 가로질러 종강으로 달려요.</span>
+        <span class="ln"><b>화난 교수님</b>은 피하고<br class="m"> <b>교수님 따봉</b>을 모아 학점을 받으세요.</span>
+        <span class="ln">처음엔 느긋하지만 종강이 가까울수록 빨라져요.</span>
+      </p>
+      <div class="keys">
         <div class="key"><span class="cap">← →</span>레인 이동</div>
         <div class="key"><span class="cap">P</span>일시정지</div>
       </div>
-      <div class="legend" style="grid-template-columns:repeat(2,1fr)">
-        <div><b>👍 따봉 +1</b>100개면 A+</div>
-        <div><b>😡 잔소리 −5</b>화난 교수님 충돌</div>
+      <div class="legend">
+        <div><b><canvas class="spr" data-spr="coin" width="60" height="56" aria-hidden="true"></canvas>따봉 +1</b><span>100개면 A+</span></div>
+        <div><b><canvas class="spr" data-spr="angry" data-crop="60,50,200,200" width="56" height="56" aria-hidden="true"></canvas>잔소리 −5</b><span>화난 교수님 충돌</span></div>
       </div>
       <button class="btn" id="startBtn" type="button">수강 시작 <small>SPACE</small></button>
     </div>
