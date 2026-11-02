@@ -2,16 +2,79 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>종강 RUN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Syncopate:wght@700&family=Gothic+A1:wght@400;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- 담당: MinjooSong0708 (뼈대). 게임 캔버스, HUD, 카드는 여기에 들어온다. -->
-  <main class="title">
-    <h1>종강 RUN</h1>
-    <p>Space를 눌러 시작</p>
-  </main>
+  <canvas id="c" aria-label="종강 런 게임 화면"></canvas>
+
+  <div class="hud" id="hud" data-off="1">
+    <div class="stat">
+      <span class="lab">종강까지</span>
+      <span class="num" id="timer">40.0</span>
+      <div class="bar"><i id="prog"></i></div>
+    </div>
+    <div class="stat right">
+      <span class="lab">교수님 따봉</span>
+      <div class="row"><span class="grade" id="liveGrade">F</span><span class="num" id="thumbs">0</span><canvas class="spr" data-spr="coin" width="60" height="56" aria-hidden="true"></canvas></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="titleView">
+    <div class="card">
+      <span class="eyebrow">SEMESTER IN SPACE · 40초 학기</span>
+      <h1>종강 <span>RUN</span></h1>
+      <p class="lede">
+        <span class="ln">노트북을 탄 <b>와우</b>가<br class="m"> 은하수를 가로질러 종강으로 달려요.</span>
+        <span class="ln"><b>화난 교수님</b>은 피하고<br class="m"> <b>교수님 따봉</b>을 모아 학점을 받으세요.</span>
+        <span class="ln">처음엔 느긋하지만 종강이 가까울수록 빨라져요.</span>
+      </p>
+      <div class="keys">
+        <div class="key"><span class="cap">← →</span>레인 이동</div>
+        <div class="key"><span class="cap">P</span>일시정지</div>
+      </div>
+      <div class="legend">
+        <div><b><canvas class="spr" data-spr="coin" width="60" height="56" aria-hidden="true"></canvas>따봉 +1</b><span>100개면 A+</span></div>
+        <div><b><canvas class="spr" data-spr="angry" data-crop="60,50,200,200" width="56" height="56" aria-hidden="true"></canvas>잔소리 −5</b><span>화난 교수님 충돌</span></div>
+      </div>
+      <button class="btn" id="startBtn" type="button">수강 시작 <small>SPACE</small></button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overView" hidden>
+    <div class="card">
+      <span class="badge" id="newBest" hidden>최고 학점 갱신</span>
+      <span class="eyebrow">종강했습니다 · 성적 공개</span>
+      <div class="report">
+        <div class="big" id="rGrade">A+</div>
+        <p id="rComment">교수님이 추천서 써주신대요.</p>
+      </div>
+      <div class="result">
+        <div><span>받은 따봉</span><b id="rThumbs">0</b></div>
+        <div><span>들은 잔소리</span><b id="rScold">0</b></div>
+        <div><span>최고 따봉</span><b id="rBest">0</b></div>
+      </div>
+      <button class="btn" id="againBtn" type="button">재수강하기 <small>SPACE</small></button>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseView" hidden>
+    <div class="card">
+      <span class="eyebrow">PAUSED</span>
+      <h2>쉬는 시간</h2>
+      <button class="btn" id="resumeBtn" type="button">수업 재개 <small>P</small></button>
+    </div>
+  </div>
+
+  <div class="ctrls">
+    <button class="mute" id="pauseBtn" type="button" hidden>일시정지 (P)</button>
+    <button class="mute" id="muteBtn" type="button">소리 켜짐</button>
+  </div>
+  <div class="hint">모바일: 좌우로 밀거나 화면 좌우를 탭해서 이동</div>
 
   <!-- 순서를 바꾸지 말 것 (SPEC.md 7절) -->
   <script src="js/config.js"></script>

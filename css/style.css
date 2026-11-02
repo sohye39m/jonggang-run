@@ -1,5 +1,147 @@
-/* 담당: MinjooSong0708 (뼈대). 프로토타입의 스타일은 여기로 옮긴다. */
-html, body { height: 100%; margin: 0; }
-body { display: grid; place-items: center; background: #03050c; color: #e9f2ff; font-family: sans-serif; text-align: center; }
-h1 { margin: 0 0 12px; font-size: 48px; }
-p { margin: 0; color: #93a8d0; }
+/* 담당: MinjooSong0708 — 화면 구조와 스타일 (#4) */
+:root{
+  --night:#03050c;
+  --ice:#e9f2ff;
+  --mist:#93a8d0;
+  --aurora:#57f2c0;
+  --glacier:#46c6ff;
+  --ember:#ffcf6e;
+  --line:rgba(233,242,255,.16);
+  --kdisplay:'Black Han Sans','Gothic A1','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --display:'Syncopate','Arial Black',sans-serif;
+  --body:'Gothic A1','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+
+  /* 좌우 여백: 시작·진행·종료 모든 화면이 같은 값을 쓴다. 내용은 이 안쪽에만 놓는다. */
+  --gutter:44px;
+  --gl:max(var(--gutter),env(safe-area-inset-left,0px));
+  --gr:max(var(--gutter),env(safe-area-inset-right,0px));
+  --gt:calc(18px + env(safe-area-inset-top,0px));
+  --gb:calc(18px + env(safe-area-inset-bottom,0px));
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;color:var(--ice);
+  /* 프로토타입의 은하수 배경(world.js 의 buildSky)을 CSS 로 옮긴 것.
+     캔버스가 그려지기 전과 world.js 가 없을 때 뒤에 보이고, 캔버스가 그려지면 그 아래로 가려진다.
+     위에서부터: 별 → 은하수 띠 → 성운(보라·분홍) → 밤하늘 그라데이션 */
+  background:
+    radial-gradient(1px 1px at 13px 27px,#fff,transparent) 0 0/131px 97px,
+    radial-gradient(1px 1px at 71px 53px,rgba(255,235,215,.8),transparent) 0 0/173px 149px,
+    radial-gradient(1.5px 1.5px at 41px 91px,rgba(200,225,255,.9),transparent) 0 0/229px 211px,
+    radial-gradient(.8px .8px at 5px 5px,rgba(235,240,255,.6),transparent) 0 0/53px 61px,
+    linear-gradient(347deg,transparent 36%,rgba(70,198,255,.07) 45%,rgba(255,236,210,.11) 51%,rgba(130,140,255,.08) 57%,transparent 66%),
+    radial-gradient(ellipse 42% 32% at 14% 12%,rgba(110,90,255,.24),transparent 72%),
+    radial-gradient(ellipse 36% 28% at 88% 10%,rgba(255,110,170,.13),transparent 72%),
+    linear-gradient(180deg,#02030a 0,#050a1e 30%,#0b1636 42%,#060c22 60%,#020309 100%);
+  background-color:var(--night);
+  font-family:var(--body);overflow:hidden;
+  -webkit-user-select:none;user-select:none;
+  word-break:keep-all;overflow-wrap:break-word} /* 줄바꿈은 단어 단위로 */
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+
+/* 게임 그림이 들어갈 자리 (그림은 ui.js 가 JR.sprites 에서 채운다) */
+.spr{display:inline-block;height:1.35em;width:auto;vertical-align:-.3em}
+
+/* ---------- HUD: 왼쪽 위 = 남은 시간, 오른쪽 위 = 학점·따봉 수 (SPEC 3절) ---------- */
+.hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  padding:var(--gt) var(--gr) 0 var(--gl);pointer-events:none;transition:opacity .4s}
+.hud[data-off="1"]{opacity:0}
+.stat{display:flex;flex-direction:column;gap:6px;min-width:0}
+.stat.right{align-items:flex-end;text-align:right}
+.lab{font-size:11px;letter-spacing:.14em;color:var(--mist);font-weight:800;line-height:1.2}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(26px,4.4vw,36px);font-weight:600;line-height:1;text-shadow:0 0 18px rgba(70,198,255,.4)}
+.bar{width:clamp(120px,24vw,200px);height:5px;border-radius:3px;background:rgba(233,242,255,.12);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--glacier),var(--aurora));box-shadow:0 0 10px var(--aurora)}
+.row{display:flex;align-items:center;gap:8px}
+.row .spr{height:30px;filter:drop-shadow(0 0 8px rgba(255,207,110,.5))}
+.grade{font-family:var(--display);font-size:12px;color:#05070f;background:var(--ember);padding:3px 7px;border-radius:3px}
+
+/* ---------- 일시정지·소리 버튼: 왼쪽 아래 (SPEC 3절) ---------- */
+.ctrls{position:fixed;bottom:var(--gb);left:var(--gl);display:flex;gap:8px;z-index:2}
+.mute{font-family:var(--body);font-size:12px;color:var(--mist);background:rgba(3,5,12,.5);border:1px solid var(--line);border-radius:3px;padding:7px 10px;cursor:pointer}
+.mute:hover{color:var(--ice)}
+.btn:focus-visible,.mute:focus-visible{outline:2px solid var(--ice);outline-offset:3px}
+.hint{position:fixed;bottom:var(--gb);right:var(--gr);font-size:12px;color:var(--mist);opacity:.7;pointer-events:none}
+
+/* ---------- 화면(오버레이) ---------- */
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:calc(var(--gt) + 4px) var(--gr) calc(var(--gb) + 36px) var(--gl);pointer-events:none;overflow:auto}
+.card{pointer-events:auto;width:min(480px,100%);box-sizing:border-box;display:flex;flex-direction:column;gap:16px;
+  padding:22px 24px 20px;background:rgba(6,10,26,.86);border:1px solid var(--line);border-radius:4px;
+  animation:rise .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
+
+/* 시작 화면(PC): 카드를 왼쪽에 두고 뒤의 데모 주행이 오른쪽에 크게 보이게 한다 */
+#titleView{justify-content:flex-start}
+#titleView .card{text-align:left}
+/* PC 시작 카드만: 오른쪽으로 30px, 전체 1.4배 (휴대폰은 아래 미디어쿼리가 그대로 유지) */
+@media (min-width:521px){
+  #titleView{padding-left:calc(var(--gl) + 30px)}
+  #titleView .card{zoom:1.4}
+}
+
+.eyebrow{font-size:11px;letter-spacing:.22em;color:var(--aurora);font-weight:800}
+h1{margin:0;font-family:var(--kdisplay);font-weight:400;color:var(--ice);
+  font-size:clamp(28px,8vw,40px);line-height:1.1;letter-spacing:.01em}
+/* '종강'과 'RUN'은 같은 글자 크기 */
+h1 span{font-family:var(--display);font-size:1em;letter-spacing:.06em;color:var(--glacier)}
+h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
+
+/* 소개글: 문장마다 새 줄, 줄이 길면 단어 단위로 넘어간다 */
+.lede{margin:0;color:var(--mist);font-size:15px;line-height:1.75}
+.lede .ln{display:block;text-wrap:pretty}
+.lede .m{display:none} /* 휴대폰에서만 쓰는 줄바꿈 */
+.lede b{color:var(--ice)}
+
+.keys{display:flex;flex-wrap:wrap;gap:10px 28px}
+.key{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mist)}
+.cap{font-family:var(--mono);font-size:14px;color:var(--ice);min-width:28px;padding:2px 7px;border:1px solid rgba(233,242,255,.3);border-bottom-width:3px;border-radius:4px;text-align:center}
+
+.legend{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.legend div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--mist)}
+.legend b{display:flex;align-items:center;gap:8px;color:var(--ice);font-size:14px}
+.legend .spr{height:30px}
+
+.btn{appearance:none;border:0;cursor:pointer;font-family:var(--body);font-weight:800;font-size:16px;letter-spacing:.04em;
+  color:#04101a;background:var(--aurora);padding:15px 18px;border-radius:2px;
+  display:flex;justify-content:space-between;align-items:center;transition:filter .12s,transform .12s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(1px)}
+.btn small{font-family:var(--mono);font-weight:500;font-size:12px;opacity:.7}
+
+/* 결과·일시정지 화면: 전부 가운데 정렬 */
+#overView .card,#pauseView .card{align-items:center;text-align:center}
+#overView .btn,#pauseView .btn{width:100%;justify-content:center;gap:12px}
+.report{display:flex;flex-direction:column;align-items:center;gap:10px}
+.big{font-family:var(--display);font-size:clamp(64px,18vw,96px);line-height:1;letter-spacing:-.02em;color:var(--ember);filter:drop-shadow(0 0 22px rgba(255,207,110,.3))}
+.big.low{color:#ff8aa0}
+.report p{margin:0;text-wrap:balance;font-size:15px;line-height:1.7;color:var(--ice)}
+.result{width:100%;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.result div{padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.result div+div{border-left:1px solid var(--line)}
+.result b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px}
+.result span{font-size:11px;color:var(--mist);letter-spacing:.06em}
+.badge{font-size:11px;font-weight:800;letter-spacing:.14em;color:#04101a;background:var(--ember);padding:4px 8px;border-radius:2px}
+
+/* ---------- 휴대폰: 화면 전체가 한 장의 카드 ---------- */
+@media (max-width:520px){
+  :root{--gutter:30px}
+  .hint{display:none}
+  /* 소개글: 지정한 자리에서 줄을 바꾸고, 문장 사이에 줄 높이의 0.5배 간격 */
+  .lede .m{display:inline}
+  .lede .ln+.ln{margin-top:.875em}
+  .overlay{padding:0;align-items:stretch;background:rgba(3,5,12,.5)}
+  /* 화면 전체가 카드이므로 카드 자체의 배경·테두리는 없앤다. 아래는 왼쪽 아래 버튼 자리를 비워 둔다 */
+  .card{width:100%;min-height:100%;box-sizing:border-box;gap:20px;background:none;border:0;border-radius:0;
+    padding:calc(var(--gt) + 54px) var(--gr) calc(var(--gb) + 48px) var(--gl)}
+  /* 시작 화면: 제목이 위쪽에서 시작하고, 버튼은 맨 아래 */
+  #titleView{background:rgba(3,5,12,.5)}
+  #titleView .card{justify-content:flex-start}
+  #titleView .btn{margin-top:auto}
+  /* 결과·일시정지 화면: 화면 한가운데에 모아서 가운데 정렬 */
+  #overView .card,#pauseView .card{justify-content:center}
+  #pauseView{background:rgba(3,5,12,.7)}
+}
