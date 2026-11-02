@@ -45,6 +45,13 @@
     });
   }
 
+  // 배경음악은 화면이 바뀌는 때에 맞춰 켜고 끈다 (SPEC 7절: 부르는 곳은 ui).
+  // JR.audio 에 해당 함수가 없는 빌드에서도 오류 없이 지나간다.
+  function bgm(name, ...args) {
+    const a = JR.audio;
+    if (a && typeof a[name] === 'function') a[name](...args);
+  }
+
   // 버튼을 누른 뒤 포커스가 남으면 Space/Enter 가 버튼을 또 누르게 되므로 포커스를 푼다
   function click(node, fn) {
     node.addEventListener('click', () => {
@@ -98,6 +105,7 @@
       for (const k in last) delete last[k]; // 새 판이므로 HUD 를 처음부터 다시 쓴다
       JR.ui.updateHud();
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      bgm('playBgm'); // 새 판(재수강 포함): 처음부터 재생
     },
 
     // 쉬는 시간 카드 표시/숨김. HUD 는 그대로 둔다
@@ -105,6 +113,7 @@
       el.pauseView.hidden = !on;
       if (on) el.resumeBtn.focus();
       else el.resumeBtn.blur();
+      bgm(on ? 'pauseBgm' : 'resumeBgm'); // 멈춘 자리에서 이어서
     },
 
     // r = { grade, comment, thumbs, scold, best, isNewBest, low }
@@ -118,6 +127,7 @@
       el.newBest.hidden = !r.isNewBest;
       view({ over: true });
       el.againBtn.focus();
+      bgm('stopBgm'); // 1.5초 페이드 후 팡파르
     },
 
     // play 중 매 프레임: JR.state.run 을 읽어 표시만 한다
