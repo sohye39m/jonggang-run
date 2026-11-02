@@ -32,12 +32,24 @@
     o.stop(t + dur + 0.02);
   }
 
-  // 음악이 멈출 때 나는 "뿅" 소리: 음이 위로 톡 튀어 오르고, 끝에 반짝임이 얹힌다.
-  // 다른 효과음보다 크게 낸다 (사라지는 음악 뒤에 묻히지 않도록).
+  // 배경음악이 완전히 멈춘 뒤 나오는 소리: assets/finish.mp3 (freesound_community, piglevelwin2).
+  // 음소거 중에는 재생하지 않는다.
+  const OUTRO_SRC = 'assets/finish.mp3';
+  const OUTRO_VOLUME = 0.7;
+  let outroSfx = null;
+  function getOutro() {
+    if (!outroSfx) {
+      outroSfx = new Audio(OUTRO_SRC);
+      outroSfx.preload = 'auto';
+      outroSfx.volume = OUTRO_VOLUME;
+    }
+    return outroSfx;
+  }
   function playOutro() {
-    tone(420, 0.2, 'sine', 0.3, 3.2); // 뿅: 420Hz 에서 위로 쭉 올라감
-    tone(840, 0.2, 'triangle', 0.1, 3.2); // 위 소리에 겹쳐 더 상큼하게
-    tone(2093, 0.22, 'sine', 0.12, 1, 0.13); // 끝의 반짝임
+    if (muted) return;
+    const a = getOutro();
+    a.currentTime = 0;
+    playSafe(a);
   }
 
   // ---------- 배경음악 ----------
@@ -79,6 +91,7 @@
     },
     // 새 판 시작: 배경음악을 처음부터 재생
     playBgm() {
+      getOutro(); // 종료 팡파르를 미리 불러 둔다
       const a = getBgm();
       cancelFade();
       a.volume = BGM_VOLUME;
@@ -95,7 +108,7 @@
       bgm.volume = BGM_VOLUME;
       playSafe(bgm);
     },
-    // 종료: 1.5초 동안 서서히 줄이고, 완전히 멈추는 순간 귀여운 소리를 낸다
+    // 종료: 1.5초 동안 서서히 줄이고, 완전히 멈춘 뒤 팡파르(assets/finish.mp3)를 재생한다
     stopBgm(sec = 1.5) {
       if (!bgm || bgm.paused) return;
       cancelFade();
