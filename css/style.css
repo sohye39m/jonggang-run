@@ -69,7 +69,7 @@ body{margin:0;color:var(--ice);
 .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
   padding:calc(var(--gt) + 4px) var(--gr) calc(var(--gb) + 36px) var(--gl);pointer-events:none;overflow:auto}
 .card{pointer-events:auto;width:min(480px,100%);box-sizing:border-box;display:flex;flex-direction:column;gap:16px;
-  padding:22px 24px 20px;background:rgba(6,10,26,.86);border:1px solid var(--line);border-radius:4px;
+  padding:22px 24px 20px;background:rgba(6,10,26,.96);border:1px solid var(--line);border-radius:4px;
   animation:rise .5s cubic-bezier(.2,.8,.2,1)}
 @keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.card{animation:none}}
@@ -80,7 +80,15 @@ body{margin:0;color:var(--ice);
 /* PC 시작 카드만: 오른쪽으로 30px, 전체 1.4배 (휴대폰은 아래 미디어쿼리가 그대로 유지) */
 @media (min-width:521px){
   #titleView{padding-left:calc(var(--gl) + 30px)}
-  #titleView .card{zoom:1.4}
+}
+/* 확대 비율은 화면 높이에 따라 줄인다: 카드 전체와 버튼이 스크롤 없이 보이도록 */
+@media (min-width:521px) and (min-height:600px){#titleView .card{zoom:1.15}}
+@media (min-width:521px) and (min-height:640px){#titleView .card{zoom:1.25}}
+@media (min-width:521px) and (min-height:720px){#titleView .card{zoom:1.4}}
+
+/* PC 결과·일시정지 화면: 뒤의 장면이 글자와 겹쳐 읽기 어렵지 않도록 화면을 어둡게 깐다 */
+@media (min-width:521px){
+  #overView,#pauseView{background:rgba(3,5,12,.5)}
 }
 
 .eyebrow{font-size:11px;letter-spacing:.22em;color:var(--aurora);font-weight:800}
@@ -126,6 +134,34 @@ h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
 .result span{font-size:11px;color:var(--mist);letter-spacing:.06em}
 .badge{font-size:11px;font-weight:800;letter-spacing:.14em;color:#04101a;background:var(--ember);padding:4px 8px;border-radius:2px}
 
+/* ---------- 낮은 화면(가로 휴대폰 844×390, 667×375 등): 모든 카드가 한 화면에 들어오게 ---------- */
+@media (min-width:521px) and (max-height:539px){
+  .overlay{padding:12px var(--gr) calc(var(--gb) + 34px) var(--gl)}
+  #titleView{padding-left:var(--gl)}
+  .card{gap:10px;padding:14px 20px}
+  /* 시작 카드: 왼쪽에 제목·소개, 오른쪽에 조작법·점수 안내·버튼 */
+  #titleView .card{width:min(100%,720px);display:grid;grid-template-columns:1fr 1fr;column-gap:28px;row-gap:10px;align-content:center}
+  #titleView .card>.eyebrow,#titleView .card>h1,#titleView .card>.lede{grid-column:1}
+  #titleView .card>.keys,#titleView .card>.legend,#titleView .card>.btn{grid-column:2}
+  #titleView .card>.eyebrow{grid-row:1}
+  #titleView .card>h1{grid-row:2}
+  #titleView .card>.lede{grid-row:3/span 3;font-size:14px;line-height:1.6}
+  #titleView .card>.keys{grid-row:1/span 2;align-self:start}
+  #titleView .card>.legend{grid-row:3}
+  #titleView .card>.btn{grid-row:4;padding:11px 16px;font-size:15px}
+  .legend div{padding:7px 0}
+  .legend .spr{height:24px}
+  h1{font-size:26px}
+  /* 결과·일시정지 카드 */
+  .big{font-size:clamp(40px,15vh,64px)}
+  .report{gap:4px}
+  .report p{font-size:14px;line-height:1.5}
+  .result div{padding:8px 6px}
+  .result b{font-size:19px}
+  .btn{padding:11px 16px}
+  h2{font-size:24px}
+}
+
 /* ---------- 휴대폰: 화면 전체가 한 장의 카드 ---------- */
 @media (max-width:520px){
   :root{--gutter:30px}
@@ -144,4 +180,12 @@ h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
   /* 결과·일시정지 화면: 화면 한가운데에 모아서 가운데 정렬 */
   #overView .card,#pauseView .card{justify-content:center}
   #pauseView{background:rgba(3,5,12,.7)}
+}
+
+/* 키가 작은 휴대폰(세로): 간격을 줄여 한 화면에 들어오게 */
+@media (max-width:520px) and (max-height:640px){
+  .card{gap:14px;padding-top:calc(var(--gt) + 34px)}
+  .lede{font-size:14px;line-height:1.65}
+  .legend div{padding:9px 0}
+  .legend .spr{height:26px}
 }
