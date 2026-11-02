@@ -3,6 +3,32 @@
 (() => {
   const JR = (window.JR = window.JR || {});
 
+  // 한 줄을 ZFAR에 등장시킨다. attract는 타이틀 데모(따봉만)
+  function spawnRow(attract) {
+    const { config: C, state: S } = JR;
+    const run = S.run;
+    const z = C.ZFAR;
+    const hard = Math.min(1, run.time / 30);
+    const order = [0, 1, 2].sort(() => Math.random() - 0.5);
+    let free = order;
+    if (!attract && run.time < 36.5) {
+      // 한 줄에 교수님 1~2명, 3개 레인을 모두 막지는 않는다
+      const n = Math.random() < 0.2 + hard * 0.35 ? 2 : 1;
+      free = order.slice(n);
+      for (const li of order.slice(0, n)) {
+        run.objs.push({ t: 'angry', lx: C.LANES[li], z, seed: Math.random(), done: false });
+      }
+    }
+    if ((attract || run.time < 37.5) && Math.random() < (attract ? 0.9 : 0.7)) {
+      const li = free[Math.floor(Math.random() * free.length)];
+      const n = 4 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < n; i++) {
+        run.objs.push({ t: 'coin', lx: C.LANES[li], z: z + 2 + i * 2.3, seed: Math.random(), done: false });
+      }
+    }
+    run.nextRow = run.speed * (0.95 - 0.25 * hard) + Math.random() * 4;
+  }
+
   JR.game = {
     update(dt) {
       const { config: C, state: S } = JR;
@@ -19,7 +45,35 @@
       const step = run.speed * dt;
       run.dist += step;
       run.x += (C.LANES[run.lane] - run.x) * Math.min(1, dt * 14);
+
+      if (!run.finish) {
+        run.nextRow -= step;
+        if (run.nextRow <= 0) spawnRow(!playing);
+      }
+
       run.inv = Math.max(0, run.inv - dt);
+      for (const o of run.objs) {
+        const pz = o.z;
+        o.z -= step;
+        if (o.done || !playing || o.t === 'finish') continue;
+        // 플레이어 깊이 ZP ± 0.55 구간을 지나면서 레인 차이가 0.3 미만일 때
+        if (pz > C.ZP - 0.55 && o.z < C.ZP + 0.55 && Math.abs(o.lx - run.x) < 0.3) {
+          if (o.t === 'coin') {
+            o.done = true;
+            run.thumbs++;
+            JR.world.fxCoin(o.lx, o.z);
+            JR.audio.playCoin(run.thumbs);
+          } else if (o.t === 'angry' && run.inv <= 0) {
+            o.done = true;
+            run.thumbs = Math.max(0, run.thumbs - 5);
+            run.scold++;
+            run.inv = 1.1;
+            JR.world.fxHit(run.x);
+            JR.audio.playHit();
+          }
+        }
+      }
+      run.objs = run.objs.filter((o) => o.z > C.ZNEAR && !(o.t === 'coin' && o.done));
 
       JR.world.tick(dt, step);
     },
