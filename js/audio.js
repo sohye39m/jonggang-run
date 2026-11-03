@@ -32,23 +32,114 @@
     o.stop(t + dur + 0.02);
   }
 
+  // 종강 팡파르: assets/finish.mp3 (freesound_community, piglevelwin2).
+  // 런이 종강 표지판 교수님 앞에 멈춘 직후 playFinish() 가 재생한다. 음소거 중에는 재생하지 않는다.
+  const FANFARE_SRC = 'assets/finish.mp3';
+  const FANFARE_VOLUME = 0.7;
+  let fanfare = null;
+  function getFanfare() {
+    if (!fanfare) {
+      fanfare = new Audio(FANFARE_SRC);
+      fanfare.preload = 'auto';
+      fanfare.volume = FANFARE_VOLUME;
+      fanfare.muted = muted;
+    }
+    return fanfare;
+  }
+  // 새 판이 시작될 때 이전 팡파르가 남아 있으면 멈춘다
+  function stopFanfare() {
+    if (!fanfare) return;
+    fanfare.pause();
+    fanfare.currentTime = 0;
+  }
+
+  // ---------- 배경음악 ----------
+  // 음원: assets/bgm.mp3 (the_mountain-retro-game). <audio> 로 반복 재생한다.
+  // file:// 로 열어도 되도록 fetch 대신 HTMLAudioElement 를 쓴다.
+  const BGM_SRC = 'assets/bgm.mp3';
+  const BGM_VOLUME = 0.2; // 효과음보다 작게. 너무 크면 이 값만 낮춘다
+  let bgm = null;
+  let fadeTimer = 0;
+
+  function getBgm() {
+    if (!bgm) {
+      bgm = new Audio(BGM_SRC);
+      bgm.loop = true;
+      bgm.preload = 'auto';
+      bgm.volume = BGM_VOLUME;
+      bgm.muted = muted;
+    }
+    return bgm;
+  }
+
+  function playSafe(a) {
+    const p = a.play();
+    if (p && p.catch) p.catch(() => {}); // 첫 입력 전에는 브라우저가 막을 수 있다
+  }
+
+  function cancelFade() {
+    clearInterval(fadeTimer);
+    fadeTimer = 0;
+  }
+
   JR.audio = {
     unlock,
-    // 음소거를 전환하고 현재 상태를 돌려준다 (true = 꺼짐)
+    // 음소거를 전환하고 현재 상태를 돌려준다 (true = 꺼짐). 배경음악도 함께 꺼진다.
     toggleMute() {
       muted = !muted;
+      if (bgm) bgm.muted = muted;
+      if (fanfare) fanfare.muted = muted;
       return muted;
+    },
+    // 새 판 시작: 배경음악을 처음부터 재생
+    playBgm() {
+      stopFanfare(); // 재수강: 이전 판의 팡파르가 남아 있으면 멈춘다
+      getFanfare(); // 종강 팡파르를 미리 불러 둔다
+      const a = getBgm();
+      cancelFade();
+      a.volume = BGM_VOLUME;
+      a.currentTime = 0;
+      playSafe(a);
+    },
+    // 일시정지 / 재개: 멈춘 자리에서 이어서
+    pauseBgm() {
+      if (bgm) bgm.pause();
+    },
+    resumeBgm() {
+      if (!bgm) return;
+      cancelFade();
+      bgm.volume = BGM_VOLUME;
+      playSafe(bgm);
+    },
+    // 종료: 1.5초 동안 서서히 줄이고 멈춘다 (팡파르는 playFinish 가 이미 재생함)
+    stopBgm(sec = 1.5) {
+      if (!bgm || bgm.paused) return;
+      cancelFade();
+      const a = bgm;
+      const steps = 30;
+      let i = 0;
+      fadeTimer = setInterval(() => {
+        i++;
+        a.volume = Math.max(0, BGM_VOLUME * (1 - i / steps));
+        if (i >= steps) {
+          cancelFade();
+          a.pause();
+          a.currentTime = 0;
+          a.volume = BGM_VOLUME;
+        }
+      }, (sec * 1000) / steps);
     },
     playStart() {
       tone(392, 0.16, 'sine', 0.05);
       tone(523, 0.16, 'sine', 0.05, 1, 0.12);
       tone(659, 0.22, 'sine', 0.05, 1, 0.24);
     },
+    // 종강 팡파르: 런이 멈춘 직후 game.js 가 부른다
     playFinish() {
-      tone(523, 0.2, 'sine', 0.06);
-      tone(659, 0.2, 'sine', 0.06, 1, 0.12);
-      tone(784, 0.2, 'sine', 0.06, 1, 0.24);
-      tone(1047, 0.5, 'sine', 0.06, 1, 0.36);
+      if (muted) return;
+      const a = getFanfare();
+      a.currentTime = 0;
+      playSafe(a);
     },
     // d: -1 왼쪽, 1 오른쪽
     playLane(d) {
