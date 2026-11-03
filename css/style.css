@@ -110,8 +110,12 @@ h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
 
 .legend{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .legend div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--mist)}
-.legend b{display:flex;align-items:center;gap:8px;color:var(--ice);font-size:14px}
-.legend .spr{height:30px}
+.legend{--ico:30px}
+.legend b{display:flex;align-items:center;gap:8px;color:var(--ice);font-size:14px;min-height:var(--ico)}
+.legend .spr{height:var(--ico)}
+/* 잔소리 아이콘: 교수님 머리가 따봉 아이콘의 머리와 같은 크기로 보이게 정한 높이(기준 × 0.715).
+   머리 위부터 턱 끝까지 모두 나오도록 자른 영역(482px)에 맞춘 값이다. 따봉 아이콘과 같은 폭의 자리 안에서 가운데에 놓는다 */
+.legend .spr[data-spr="angry"]{height:calc(var(--ico)*.715);margin-inline:calc(var(--ico)*.179)}
 
 .btn{appearance:none;border:0;cursor:pointer;font-family:var(--body);font-weight:800;font-size:16px;letter-spacing:.04em;
   color:#04101a;background:var(--aurora);padding:15px 18px;border-radius:2px;
@@ -150,7 +154,7 @@ h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
   #titleView .card>.legend{grid-row:3}
   #titleView .card>.btn{grid-row:4;padding:11px 16px;font-size:15px}
   .legend div{padding:7px 0}
-  .legend .spr{height:24px}
+  .legend{--ico:24px}
   h1{font-size:26px}
   /* 결과·일시정지 카드 */
   .big{font-size:clamp(40px,15vh,64px)}
@@ -187,5 +191,5 @@ h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
   .card{gap:14px;padding-top:calc(var(--gt) + 34px)}
   .lede{font-size:14px;line-height:1.65}
   .legend div{padding:9px 0}
-  .legend .spr{height:26px}
+  .legend{--ico:26px}
 }
