@@ -29,7 +29,8 @@
   }
 
   // HTML 의 <canvas data-spr="coin"> 자리에 게임 그림(JR.sprites)을 그려 넣는다.
-  // data-crop="sx,sy,sw,sh" 가 있으면 그 부분만 잘라서 쓴다.
+  // data-crop="sx,sy,sw,sh" 가 있으면 그 부분만 잘라서 쓴다. 값은 그림 크기에 대한 비율(0~1)이라서,
+  // 그림 크기가 바뀌어도(예: 320×560 → 640×1120) 자르는 위치가 어긋나지 않는다.
   function paintIcons() {
     document.querySelectorAll('canvas[data-spr]').forEach((c) => {
       const src = JR.sprites && JR.sprites[c.dataset.spr];
@@ -37,12 +38,24 @@
       const g = c.getContext('2d');
       g.clearRect(0, 0, c.width, c.height);
       if (c.dataset.crop) {
-        const [sx, sy, sw, sh] = c.dataset.crop.split(',').map(Number);
-        g.drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height);
+        const [fx, fy, fw, fh] = c.dataset.crop.split(',').map(Number);
+        g.drawImage(src, fx * src.width, fy * src.height, fw * src.width, fh * src.height, 0, 0, c.width, c.height);
       } else {
         g.drawImage(src, 0, 0, c.width, c.height);
       }
     });
+  }
+
+  // 렌더 이미지(WebP)는 sprites.build() 뒤에 비동기로 불러와 같은 canvas 에 다시 그려진다.
+  // init 에서 한 번만 복사하면 불러오기 전의 대체 그림이 남으므로, 시작 직후 몇 초 동안은
+  // 매 프레임 다시 그려서 새 그림으로 바뀌는 순간을 따라간다.
+  function syncIcons(ms = 6000) {
+    const t0 = performance.now();
+    const tick = () => {
+      paintIcons();
+      if (performance.now() - t0 < ms) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   // 배경음악은 화면이 바뀌는 때에 맞춰 켜고 끈다 (SPEC 7절: 부르는 곳은 ui).
@@ -85,6 +98,7 @@
       };
 
       paintIcons();
+      syncIcons();
 
       click(el.startBtn, () => JR.game.start());
       click(el.againBtn, () => JR.game.start());
@@ -105,6 +119,7 @@
       for (const k in last) delete last[k]; // 새 판이므로 HUD 를 처음부터 다시 쓴다
       JR.ui.updateHud();
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      paintIcons(); // HUD 따봉 아이콘이 새 그림인지 확인
       bgm('playBgm'); // 새 판(재수강 포함): 처음부터 재생
     },
 
@@ -121,9 +136,9 @@
       el.rGrade.textContent = r.grade;
       el.rGrade.classList.toggle('low', !!r.low); // 따봉 50개 미만이면 분홍색
       el.rComment.textContent = r.comment;
-      el.rThumbs.textContent = r.thumbs;
-      el.rScold.textContent = r.scold;
-      el.rBest.textContent = r.best;
+      el.rThumbs.textContent = r.thumbs + '개';
+      el.rScold.textContent = r.scold + '번';
+      el.rBest.textContent = r.best + '개';
       el.newBest.hidden = !r.isNewBest;
       view({ over: true });
       el.againBtn.focus();
