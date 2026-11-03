@@ -142,7 +142,7 @@
       el.newBest.hidden = !r.isNewBest;
       view({ over: true });
       el.againBtn.focus();
-      bgm('stopBgm'); // 1.5초 페이드 후 팡파르
+      bgm('stopBgm'); // 배경 음악만 1.5초 동안 줄인다. 팡파르는 런이 멈출 때 playFinish()가 재생한다
     },
 
     // play 중 매 프레임: JR.state.run 을 읽어 표시만 한다
