@@ -106,11 +106,11 @@
     W=cv.clientWidth;H=cv.clientHeight;
     cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
     ctx.setTransform(DPR,0,0,DPR,0,0);
-    HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(W*.4,H*.58)*ZP;
+    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.53:W*.4,H*.58)*ZP;CAMK=narrow?.15:.55;
     buildSky();
   }
 
-  let camX=0;
+  let camX=0,CAMK=.55;
   function P(lx,z,h=0){const s=KX/z;return{x:W/2+(lx-camX)*s,y:HZ+K/z-h*s,s}}
 
   // 먼지
@@ -249,7 +249,7 @@
     // 먼지, 유성, 효과, 궤적, 카메라 진행. 일시정지 중에는 호출되지 않는다
     tick(dt, step) {
       S = JR.state.run;
-      camX += (S.x * 0.55 - camX) * Math.min(1, dt * 5);
+      camX += (S.x * CAMK - camX) * Math.min(1, dt * 5);
       trail.push({ lx: S.x, h: 0.12, d: S.dist });
       while (trail.length && S.dist - trail[0].d > 0.95) trail.shift();
       for (const d of dust) {
