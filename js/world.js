@@ -106,11 +106,11 @@
     W=cv.clientWidth;H=cv.clientHeight;
     cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
     ctx.setTransform(DPR,0,0,DPR,0,0);
-    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.55:W*.4,H*.58)*ZP;CAMK=narrow?.05:.55;SPR=narrow?1.5:1;FX=KX/(Math.min(W*.4,H*.58)*ZP)*SPR;
+    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.55:W*.4,H*.58)*ZP;CAMK=narrow?.05:.55;SPR=narrow?1.5:1;FX=KX/(Math.min(W*.4,H*.58)*ZP)*SPR;TX=Math.min(FX,1.4);
     buildSky();
   }
 
-  let camX=0,CAMK=.55,SPR=1,FX=1; // SPR: 도로 위 그림 배율, FX: 수정 전 크기 대비 효과 배율 (넓은 화면은 둘 다 1)
+  let camX=0,CAMK=.55,SPR=1,FX=1,TX=1; // SPR: 도로 위 그림 배율, FX: 수정 전 크기 대비 효과 배율, TX: 효과 글씨 배율 (넓은 화면은 모두 1)
   function P(lx,z,h=0){const s=KX/z;return{x:W/2+(lx-camX)*s,y:HZ+K/z-h*s,s}}
 
   // 먼지
@@ -209,7 +209,7 @@
   function drawFx(){
     for(const f of fx){
       const a=Math.max(0,Math.min(1,f.life));
-      if(f.txt){ctx.globalAlpha=a;ctx.fillStyle=`rgb(${f.col})`;ctx.font=`800 ${17*FX}px 'Gothic A1', sans-serif`;ctx.textAlign='center';ctx.lineWidth=4*FX;ctx.strokeStyle='rgba(3,5,12,.7)';const hw=ctx.measureText(f.txt).width/2+4*FX,tx=Math.max(hw,Math.min(W-hw,f.x));ctx.strokeText(f.txt,tx,f.y);ctx.fillText(f.txt,tx,f.y);ctx.globalAlpha=1;continue}
+      if(f.txt){ctx.globalAlpha=a;ctx.fillStyle=`rgb(${f.col})`;ctx.font=`800 ${17*TX}px 'Gothic A1', sans-serif`;ctx.textAlign='center';ctx.lineWidth=4*TX;ctx.strokeStyle='rgba(3,5,12,.7)';const hw=ctx.measureText(f.txt).width/2+4*TX,tx=Math.max(hw,Math.min(W-hw,f.x));ctx.strokeText(f.txt,tx,f.y);ctx.fillText(f.txt,tx,f.y);ctx.globalAlpha=1;continue}
       if(f.conf){ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot);ctx.fillStyle=`rgba(${f.col},${a})`;ctx.fillRect(-f.r,-f.r*.5,f.r*2,f.r);ctx.restore();continue}
       ctx.fillStyle=`rgba(${f.col},${a})`;ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,6.283);ctx.fill();
     }
