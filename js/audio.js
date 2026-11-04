@@ -35,7 +35,7 @@
   // 종강 팡파르: assets/finish.mp3 (freesound_community, piglevelwin2).
   // 런이 종강 표지판 교수님 앞에 멈춘 직후 playFinish() 가 재생한다. 음소거 중에는 재생하지 않는다.
   const FANFARE_SRC = 'assets/finish.mp3';
-  const FANFARE_VOLUME = 0.7;
+  const FANFARE_VOLUME = 0.4; // 너무 크면 이 값만 낮춘다
   let fanfare = null;
   function getFanfare() {
     if (!fanfare) {
