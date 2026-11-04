@@ -106,11 +106,11 @@
     W=cv.clientWidth;H=cv.clientHeight;
     cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
     ctx.setTransform(DPR,0,0,DPR,0,0);
-    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.55:W*.4,H*.58)*ZP;CAMK=narrow?.05:.55;SPR=narrow?1.5:1;
+    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.55:W*.4,H*.58)*ZP;CAMK=narrow?.05:.55;SPR=narrow?1.5:1;FX=KX/(Math.min(W*.4,H*.58)*ZP)*SPR;
     buildSky();
   }
 
-  let camX=0,CAMK=.55,SPR=1;
+  let camX=0,CAMK=.55,SPR=1,FX=1; // SPR: 도로 위 그림 배율, FX: 수정 전 크기 대비 효과 배율 (넓은 화면은 둘 다 1)
   function P(lx,z,h=0){const s=KX/z;return{x:W/2+(lx-camX)*s,y:HZ+K/z-h*s,s}}
 
   // 먼지
@@ -118,9 +118,9 @@
   function newDust(any){return{lx:(Math.random()*2-1)*3,h:Math.random()*1.8-.2,z:any?ZNEAR+Math.random()*ZFAR:ZFAR*(.5+Math.random()*.5),c:Math.random()<.5?'200,225,255':'170,160,255'}}
 
   // 효과
-  function burst(x,y,col,n,spd){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=spd*(.4+Math.random());fx.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-spd*.4,life:1,col,r:1.5+Math.random()*2.5})}}
-  function popText(x,y,txt,col){fx.push({x,y,vx:0,vy:-46,life:1.1,txt,col})}
-  function confetti(){const cols=['255,207,110','87,242,192','70,198,255','255,120,160','160,150,255'];for(let i=0;i<140;i++){fx.push({x:W*Math.random(),y:-10-Math.random()*H*.3,vx:(Math.random()-.5)*60,vy:60+Math.random()*120,life:2.2,col:cols[i%5],r:2+Math.random()*3,conf:true,rot:Math.random()*6})}}
+  function burst(x,y,col,n,spd){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=spd*FX*(.4+Math.random());fx.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-spd*FX*.4,life:1,col,r:(1.5+Math.random()*2.5)*FX})}}
+  function popText(x,y,txt,col){fx.push({x,y,vx:0,vy:-46*FX,life:1.1,txt,col})}
+  function confetti(){const cols=['255,207,110','87,242,192','70,198,255','255,120,160','160,150,255'];for(let i=0;i<140;i++){fx.push({x:W*Math.random(),y:-10-Math.random()*H*.3,vx:(Math.random()-.5)*60,vy:60+Math.random()*120,life:2.2,col:cols[i%5],r:(2+Math.random()*3)*FX,conf:true,rot:Math.random()*6})}}
 
   function fogT(z){return Math.min(1,Math.max(0,(z-12)/(ZFAR-12)))}
   function fadeA(z){return 1-Math.min(1,Math.max(0,(z-ZFAR*.7)/(ZFAR*.3)))}
@@ -161,7 +161,7 @@
   }
 
   function shadow(lx,z,w,a){const p=P(lx,z);ctx.fillStyle=`rgba(0,2,10,${.5*a})`;ctx.beginPath();ctx.ellipse(p.x,p.y,w*p.s*SPR,w*p.s*.22*SPR,0,0,6.283);ctx.fill()}
-  function sprite(img,lx,z,h,lift=0,alpha=1){const p=P(lx,z,lift);if(!img)return p;const hp=h*p.s*SPR,wp=hp*img.width/img.height;ctx.globalAlpha=alpha;ctx.drawImage(img,p.x-wp/2,p.y-hp,wp,hp);ctx.globalAlpha=1;return p}
+  function sprite(img,lx,z,h,lift=0,alpha=1){const p=P(lx,z,lift*SPR);if(!img)return p;const hp=h*p.s*SPR,wp=hp*img.width/img.height;ctx.globalAlpha=alpha;ctx.drawImage(img,p.x-wp/2,p.y-hp,wp,hp);ctx.globalAlpha=1;return p}
 
   function drawObj(o,t){
     const a=fadeA(o.z);
@@ -170,10 +170,10 @@
     else if(o.t==='finish'){
       shadow(0,o.z,.4,1);
       // finish gate: arc of light over the track
-      const l=P(-1,o.z),r=P(1,o.z),top=P(0,o.z,1.25);
-      ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,207,110,.9)';ctx.shadowColor='#ffcf6e';ctx.shadowBlur=18;ctx.lineWidth=Math.max(2,l.s*.02);
+      const l=P(-1,o.z),r=P(1,o.z),top=P(0,o.z,1.25*SPR);
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,207,110,.9)';ctx.shadowColor='#ffcf6e';ctx.shadowBlur=18*FX;ctx.lineWidth=Math.max(2,l.s*.02*SPR);
       ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.bezierCurveTo(l.x,top.y,r.x,top.y,r.x,r.y);ctx.stroke();
-      ctx.fillStyle='rgba(255,207,110,.25)';ctx.fillRect(l.x,l.y-l.s*.02,r.x-l.x,l.s*.04);
+      ctx.fillStyle='rgba(255,207,110,.25)';ctx.fillRect(l.x,l.y-l.s*.02*SPR,r.x-l.x,l.s*.04*SPR);
       ctx.restore();
       sprite(JR.sprites.finish,.08,o.z,1.25,0,1);
     }
@@ -184,12 +184,12 @@
     ctx.fillStyle=`rgba(0,2,10,${.55*sh})`;ctx.beginPath();ctx.ellipse(g0.x,g0.y,g0.s*.16*SPR*sh+2,g0.s*.035*SPR*sh+1,0,0,6.283);ctx.fill();
     ctx.save();ctx.globalCompositeOperation='lighter';
     const lp=ctx.createRadialGradient(g0.x,g0.y,0,g0.x,g0.y,g0.s*.3*SPR);lp.addColorStop(0,`rgba(110,190,255,${.3*sh})`);lp.addColorStop(1,'rgba(110,190,255,0)');
-    ctx.fillStyle=lp;ctx.beginPath();ctx.ellipse(g0.x,g0.y,g0.s*.3,g0.s*.08,0,0,6.283);ctx.fill();
+    ctx.fillStyle=lp;ctx.beginPath();ctx.ellipse(g0.x,g0.y,g0.s*.3*SPR,g0.s*.08*SPR,0,0,6.283);ctx.fill();
     // trail
-    const pts=trail.map(q=>{const z=ZP-(S.dist-q.d);return z>ZNEAR?P(q.lx,z,q.h):null}).filter(Boolean);
-    for(let i=1;i<pts.length;i++){const f=i/pts.length,a=pts[i-1],b=pts[i];ctx.strokeStyle=`rgba(${f>.5?'120,210,255':'143,140,255'},${.22*f})`;ctx.lineWidth=Math.max(1,b.s*.035*f);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+    const pts=trail.map(q=>{const z=ZP-(S.dist-q.d);return z>ZNEAR?P(q.lx,z,q.h*SPR):null}).filter(Boolean);
+    for(let i=1;i<pts.length;i++){const f=i/pts.length,a=pts[i-1],b=pts[i];ctx.strokeStyle=`rgba(${f>.5?'120,210,255':'143,140,255'},${.22*f})`;ctx.lineWidth=Math.max(1,b.s*.035*SPR*f);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
     // jet flame from under the laptop (toward camera)
-    const lift=.03;const base=P(S.x,ZP,lift);const fl=S.speed>1?1:0;
+    const lift=.03*SPR;const base=P(S.x,ZP,lift);const fl=S.speed>1?1:0;
     if(fl){const L=base.s*SPR*(.1+.03*Math.sin(t*40))*(.6+S.speed/36*.5);
       for(const dx of[-.08,.08]){const fx=base.x+dx*base.s*SPR,fy=base.y;const g=ctx.createLinearGradient(fx,fy,fx,fy+L);g.addColorStop(0,'rgba(220,245,255,.95)');g.addColorStop(.35,'rgba(90,180,255,.7)');g.addColorStop(1,'rgba(90,120,255,0)');
         ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(fx-base.s*SPR*.03,fy);ctx.quadraticCurveTo(fx,fy+L*1.2,fx+base.s*SPR*.03,fy);ctx.closePath();ctx.fill()}}
@@ -209,7 +209,7 @@
   function drawFx(){
     for(const f of fx){
       const a=Math.max(0,Math.min(1,f.life));
-      if(f.txt){ctx.globalAlpha=a;ctx.fillStyle=`rgb(${f.col})`;ctx.font="800 17px 'Gothic A1', sans-serif";ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle='rgba(3,5,12,.7)';ctx.strokeText(f.txt,f.x,f.y);ctx.fillText(f.txt,f.x,f.y);ctx.globalAlpha=1;continue}
+      if(f.txt){ctx.globalAlpha=a;ctx.fillStyle=`rgb(${f.col})`;ctx.font=`800 ${17*FX}px 'Gothic A1', sans-serif`;ctx.textAlign='center';ctx.lineWidth=4*FX;ctx.strokeStyle='rgba(3,5,12,.7)';const hw=ctx.measureText(f.txt).width/2+4*FX,tx=Math.max(hw,Math.min(W-hw,f.x));ctx.strokeText(f.txt,tx,f.y);ctx.fillText(f.txt,tx,f.y);ctx.globalAlpha=1;continue}
       if(f.conf){ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot);ctx.fillStyle=`rgba(${f.col},${a})`;ctx.fillRect(-f.r,-f.r*.5,f.r*2,f.r);ctx.restore();continue}
       ctx.fillStyle=`rgba(${f.col},${a})`;ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,6.283);ctx.fill();
     }
@@ -263,7 +263,7 @@
         if (f.conf) {
           f.rot += dt * 6;
           f.vx += Math.sin(f.y * 0.02) * 10 * dt;
-        } else if (!f.txt) f.vy += 260 * dt;
+        } else if (!f.txt) f.vy += 260 * FX * dt;
       }
       fx = fx.filter((f) => f.life > 0 && f.y < H + 40);
       shake = Math.max(0, shake - dt * 2.2);
@@ -288,18 +288,18 @@
     },
     // 따봉 획득 효과와 +1 👍
     fxCoin(lx, z) {
-      const p = P(lx, z, 0.3);
+      const p = P(lx, z, 0.3 * SPR);
       burst(p.x, p.y, '255,207,110', 10, 120);
-      popText(p.x, p.y - 24, '+1 👍', '255,226,163');
+      popText(p.x, p.y - 24 * FX, '+1 👍', '255,226,163');
     },
     // 충돌 효과: 붉은 번쩍임, 흔들림, 파편, 잔소리 −5
     fxHit(x) {
       flash = 1;
       flashCol = '255,90,110';
       shake = reduceMotion ? 0 : 1;
-      const p = P(x, ZP, 0.3);
+      const p = P(x, ZP, 0.3 * SPR);
       burst(p.x, p.y, '255,120,140', 26, 220);
-      popText(p.x, p.y - 40, '잔소리 −5', '255,140,160');
+      popText(p.x, p.y - 40 * FX, '잔소리 −5', '255,140,160');
     },
     // 색종이
     fxFinish() {
