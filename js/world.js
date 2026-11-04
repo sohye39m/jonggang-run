@@ -106,11 +106,11 @@
     W=cv.clientWidth;H=cv.clientHeight;
     cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
     ctx.setTransform(DPR,0,0,DPR,0,0);
-    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.53:W*.4,H*.58)*ZP;CAMK=narrow?.15:.55;
+    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.55:W*.4,H*.58)*ZP;CAMK=narrow?.05:.55;SPR=narrow?1.3:1;
     buildSky();
   }
 
-  let camX=0,CAMK=.55;
+  let camX=0,CAMK=.55,SPR=1;
   function P(lx,z,h=0){const s=KX/z;return{x:W/2+(lx-camX)*s,y:HZ+K/z-h*s,s}}
 
   // 먼지
@@ -160,8 +160,8 @@
     ctx.restore();
   }
 
-  function shadow(lx,z,w,a){const p=P(lx,z);ctx.fillStyle=`rgba(0,2,10,${.5*a})`;ctx.beginPath();ctx.ellipse(p.x,p.y,w*p.s,w*p.s*.22,0,0,6.283);ctx.fill()}
-  function sprite(img,lx,z,h,lift=0,alpha=1){const p=P(lx,z,lift);if(!img)return p;const hp=h*p.s,wp=hp*img.width/img.height;ctx.globalAlpha=alpha;ctx.drawImage(img,p.x-wp/2,p.y-hp,wp,hp);ctx.globalAlpha=1;return p}
+  function shadow(lx,z,w,a){const p=P(lx,z);ctx.fillStyle=`rgba(0,2,10,${.5*a})`;ctx.beginPath();ctx.ellipse(p.x,p.y,w*p.s*SPR,w*p.s*.22*SPR,0,0,6.283);ctx.fill()}
+  function sprite(img,lx,z,h,lift=0,alpha=1){const p=P(lx,z,lift);if(!img)return p;const hp=h*p.s*SPR,wp=hp*img.width/img.height;ctx.globalAlpha=alpha;ctx.drawImage(img,p.x-wp/2,p.y-hp,wp,hp);ctx.globalAlpha=1;return p}
 
   function drawObj(o,t){
     const a=fadeA(o.z);
@@ -181,23 +181,23 @@
 
   function drawPlayer(t){
     const g0=P(S.x,ZP),sh=1;
-    ctx.fillStyle=`rgba(0,2,10,${.55*sh})`;ctx.beginPath();ctx.ellipse(g0.x,g0.y,g0.s*.16*sh+2,g0.s*.035*sh+1,0,0,6.283);ctx.fill();
+    ctx.fillStyle=`rgba(0,2,10,${.55*sh})`;ctx.beginPath();ctx.ellipse(g0.x,g0.y,g0.s*.16*SPR*sh+2,g0.s*.035*SPR*sh+1,0,0,6.283);ctx.fill();
     ctx.save();ctx.globalCompositeOperation='lighter';
-    const lp=ctx.createRadialGradient(g0.x,g0.y,0,g0.x,g0.y,g0.s*.3);lp.addColorStop(0,`rgba(110,190,255,${.3*sh})`);lp.addColorStop(1,'rgba(110,190,255,0)');
+    const lp=ctx.createRadialGradient(g0.x,g0.y,0,g0.x,g0.y,g0.s*.3*SPR);lp.addColorStop(0,`rgba(110,190,255,${.3*sh})`);lp.addColorStop(1,'rgba(110,190,255,0)');
     ctx.fillStyle=lp;ctx.beginPath();ctx.ellipse(g0.x,g0.y,g0.s*.3,g0.s*.08,0,0,6.283);ctx.fill();
     // trail
     const pts=trail.map(q=>{const z=ZP-(S.dist-q.d);return z>ZNEAR?P(q.lx,z,q.h):null}).filter(Boolean);
     for(let i=1;i<pts.length;i++){const f=i/pts.length,a=pts[i-1],b=pts[i];ctx.strokeStyle=`rgba(${f>.5?'120,210,255':'143,140,255'},${.22*f})`;ctx.lineWidth=Math.max(1,b.s*.035*f);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
     // jet flame from under the laptop (toward camera)
     const lift=.03;const base=P(S.x,ZP,lift);const fl=S.speed>1?1:0;
-    if(fl){const L=base.s*(.1+.03*Math.sin(t*40))*(.6+S.speed/36*.5);
-      for(const dx of[-.08,.08]){const fx=base.x+dx*base.s,fy=base.y;const g=ctx.createLinearGradient(fx,fy,fx,fy+L);g.addColorStop(0,'rgba(220,245,255,.95)');g.addColorStop(.35,'rgba(90,180,255,.7)');g.addColorStop(1,'rgba(90,120,255,0)');
-        ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(fx-base.s*.03,fy);ctx.quadraticCurveTo(fx,fy+L*1.2,fx+base.s*.03,fy);ctx.closePath();ctx.fill()}}
+    if(fl){const L=base.s*SPR*(.1+.03*Math.sin(t*40))*(.6+S.speed/36*.5);
+      for(const dx of[-.08,.08]){const fx=base.x+dx*base.s*SPR,fy=base.y;const g=ctx.createLinearGradient(fx,fy,fx,fy+L);g.addColorStop(0,'rgba(220,245,255,.95)');g.addColorStop(.35,'rgba(90,180,255,.7)');g.addColorStop(1,'rgba(90,120,255,0)');
+        ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(fx-base.s*SPR*.03,fy);ctx.quadraticCurveTo(fx,fy+L*1.2,fx+base.s*SPR*.03,fy);ctx.closePath();ctx.fill()}}
     ctx.restore();
     const blink=S.inv>0&&Math.floor(S.inv*12)%2===0;
     const tilt=(LANES[S.lane]-S.x)*.5;
     const img=JR.sprites.player;if(!img)return;
-    const p=P(S.x,ZP,lift),hp=.44*p.s,wp=hp*img.width/img.height;
+    const p=P(S.x,ZP,lift),hp=.44*p.s*SPR,wp=hp*img.width/img.height;
     ctx.save();ctx.globalAlpha=blink?.35:1;ctx.translate(p.x,p.y);ctx.rotate(tilt);ctx.drawImage(img,-wp/2,-hp,wp,hp);ctx.restore();
   }
   function drawDust(){
