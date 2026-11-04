@@ -106,7 +106,7 @@
     W=cv.clientWidth;H=cv.clientHeight;
     cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
     ctx.setTransform(DPR,0,0,DPR,0,0);
-    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.55:W*.4,H*.58)*ZP;CAMK=narrow?.05:.55;SPR=narrow?1.3:1;
+    const narrow=W*.4<H*.58;HZ=H*.44;K=(H*.86-HZ)*ZP;KX=Math.min(narrow?W*.55:W*.4,H*.58)*ZP;CAMK=narrow?.05:.55;SPR=narrow?1.5:1;
     buildSky();
   }
 
