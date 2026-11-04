@@ -179,6 +179,8 @@ h2{margin:0;font-family:var(--kdisplay);font-weight:400;font-size:30px}
     padding:calc(var(--gt) + 54px) var(--gr) calc(var(--gb) + 48px) var(--gl)}
   /* 시작 화면: 제목이 위쪽에서 시작하고, 버튼은 맨 아래 */
   #titleView{background:rgba(3,5,12,.5)}
+  /* 커진 교수님 그림 위에서도 글씨가 읽히도록 결과·일시정지 화면은 더 어둡게 */
+  #overView,#pauseView{background:rgba(3,5,12,.8)}
   #titleView .card{justify-content:flex-start}
   #titleView .btn{margin-top:auto}
   /* 결과·일시정지 화면: 화면 한가운데에 모아서 가운데 정렬 */
